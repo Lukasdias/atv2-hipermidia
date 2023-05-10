@@ -1,0 +1,15 @@
+html, body {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    font-weight: 900;
+    color: black;
+    font-size: 50;
+    margin: auto;
+}
