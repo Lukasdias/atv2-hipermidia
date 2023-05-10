@@ -1,15 +1,32 @@
-html, body {
+/* html, body {
     padding: 0;
     margin: 0;
     width: 100vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
+    background-color: #090909;
+    font-family: sans-serif;
+}
+
+header {
+    height: 200px;
+}
+
+section {
+    flex: 1;
+}
+
+footer {
+    height: 100px;
 }
 
 h1 {
     font-weight: 900;
-    color: black;
+    color: white;
     font-size: 50;
-    margin: auto;
-}
+} */
+
+/* * {
+    border: solid 1px black
+} */
