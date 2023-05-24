@@ -13,29 +13,61 @@
 
   // Função para inserir um código html em um determinado elemento
   function insereHtml(seletor, html) {
-
+    var elemento = document.querySelector(seletor)
+    elemento.innerHTML = html
   }
 
   // Mostra o ícone de carregamento dentro do elemento identificado por 'seletor'.
   function exibeLoader(seletor) {
-
+    var html = "<div class='text-center'>"
+    html += "<img class='loader' src='images/ajax-loader.gif' /></div>"
+    insereHtml(seletor, html)
   };
 
   // Substitui o nome da propriedade pelo seu respectivo valor em uma determinada string
   function inserePropriedade(string, nomeProp, valorProp) {
-
+    var propSubstituir = "{{" + nomeProp + "}}"
+    string = string.replace(
+      new RegExp(propSubstituir, "g"),
+      valorProp
+    );
+    return string;
   };
 
   // Ao carregar a página, antes das imagens e CSS
   document.addEventListener("DOMContentLoaded", function(event) {
-
+    exibeLoader('#principal')
+    $ajaxUtils.sendGetRequest(
+        htmlPaginaInicial,
+        function(resposta) {
+            document.querySelector("#principal").innerHTML = resposta
+        },
+        false
+    )
   });
 
   // Builds HTML for the categories page based on the data
   // from the server
   function exibirVisaoCategorias(categorias) {
     // Carrega o título da página de categorias
-
+    $ajaxUtils.sendGetRequest(
+      htmlTituloCategorias,
+      function(htmlTituloCategorias) {
+        $ajaxUtils.sendGetRequest(
+          htmlCategorias,
+          function(htmlCategorias) {
+            var htmlVisaoCategorias = criaVisaoCategorias(
+              categorias,
+              htmlTituloCategorias,
+              htmlCategorias
+            )
+            insereHtml('#principal', htmlVisaoCategorias)
+          }, 
+          false
+        )
+      },
+      false
+    )
   }
 
   // Usa os dados das categorias e componentes html para criar a visão das categorias
@@ -44,7 +76,21 @@
     htmlTituloCategorias,
     htmlCategorias
   ) {
+    var htmlFinal = htmlTituloCategorias
+    htmlFinal += "<section class='row'>";
+    
 
+    for(var i = 0; i < categorias.length; i++) {
+      var html = htmlCategorias;
+      var nome = "" + categorias[i].nome;
+      var codigo = categorias[i].codigo;
+      html = inserePropriedade(html, "nome", nome);
+      html = inserePropriedade(html, "codigo", codigo);
+      htmlFinal += html
+    }
+    
+    htmlFinal += "</section>"
+    return htmlFinal;
   }
 
 
@@ -73,7 +119,11 @@
 
   // Carrega a visão das categorias.
   doc.carregarCategorias = function() {
-
+    exibeLoader("#principal")
+    $ajaxUtils.sendGetRequest(
+      itensCardapioUrl,
+      exibirVisaoCategorias
+    )
   };
 
   // Carrega os itens do cardapio para uma determinada categoria..
