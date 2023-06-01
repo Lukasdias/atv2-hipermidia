@@ -107,20 +107,133 @@
     return htmlFinal;
   }
 
-  function exibirVisaoItensCardapio(itensCardapioCategoria) {}
+  function exibirVisaoItensCardapio(itensCardapioCategoria) {
+    $ajaxUtils.sendGetRequest(
+      htmlTituloItensCardapio,
+      function (htmlTituloItensCardapio) {
+        $ajaxUtils.sendGetRequest(
+          htmlItensCardapio,
+          function (htmlItensCardapio) {
+            var htmlVisaoItensCardapio = criaVisaoItensCardapio(
+              itensCardapioCategoria,
+              htmlTituloItensCardapio,
+              htmlItensCardapio
+            );
+            insereHtml("#principal", htmlVisaoItensCardapio);
+          },
+          false
+        );
+      },
+      false
+    );
+  }
 
   // Usa os dados dos itens e componentes html para criar a visão itens do cardápio
   function criaVisaoItensCardapio(
     itensCardapioCategoria,
     htmlTituloItensCardapio,
     htmlItensCardapio
-  ) {}
+  ) {
+    htmlTituloItensCardapio = inserePropriedade(
+      htmlTituloItensCardapio,
+      "nome",
+      itensCardapioCategoria.categoria.nome
+    );
+
+    htmlTituloItensCardapio = inserePropriedade(
+      htmlTituloItensCardapio,
+      "descricao",
+      itensCardapioCategoria.categoria.descricao
+    );
+
+    var htmlFinal = htmlTituloItensCardapio;
+    htmlFinal += "<section class='row'>";
+
+    var itensCardapio = itensCardapioCategoria.itens_cardapio;
+
+    var codigoCategoria = itensCardapioCategoria.categoria.codigo;
+    for (var i = 0; i < itensCardapio.length; i++) {
+      var html = htmlItensCardapio;
+      html = inserePropriedade(
+        html,
+
+        "codigo",
+        itensCardapio[i].codigo
+      );
+      html = inserePropriedade(
+        html,
+
+        "codigo_categoria",
+        codigoCategoria
+      );
+
+      html = inserePreco(
+        html,
+
+        "preco_porcao_pequena",
+        itensCardapio[i].preco_porcao_pequena
+      );
+
+      html = inserePorcao(
+        html,
+        "nome_porcao_pequena",
+        itensCardapio[i].nome_porcao_pequena
+      );
+
+      // #8.2
+      html = inserePreco(
+        html,
+
+        "preco_porcao_grande",
+        itensCardapio[i].preco_porcao_grande
+      );
+
+      html = inserePorcao(
+        html,
+        "nome_porcao_grande",
+        itensCardapio[i].nome_porcao_grande
+      );
+
+      html = inserePropriedade(html, "nome", itensCardapio[i].nome);
+      html = inserePropriedade(
+        html,
+
+        "descricao",
+        itensCardapio[i].descricao
+      );
+
+      htmlFinal += html;
+    }
+
+    htmlFinal += "</section>";
+    return htmlFinal;
+  }
 
   // Adiciona 'R$ ' na frente do preço se especificado
-  function inserePreco(html, nomeProp, valorProp) {}
+  function inserePreco(html, nomeProp, valorProp) {
+    // Se não especificado, substitui com uma string vazia.
+    if (!valorProp) {
+      return inserePropriedade(html, nomeProp, "");
+    }
+
+    valorProp = "R$ " + valorProp.toFixed(2);
+
+    html = inserePropriedade(html, nomeProp, valorProp);
+    return html;
+  }
 
   // Adiciona o nome da porção em parênteses se especificado
-  function inserePorcao(html, nomeProp, valorProp) {}
+  // Adiciona o nome da porção em parênteses se especificado
+  function inserePorcao(html, nomeProp, valorProp) {
+    // Se não especificado, retorna a string original
+    if (!valorProp) {
+      return inserePropriedade(html, nomeProp, "");
+    }
+
+    valorProp = "(" + valorProp + ")";
+    html = inserePropriedade(html, nomeProp, valorProp);
+    return html;
+  }
 
   // Carrega a visão das categorias.
   doc.carregarCategorias = function () {
@@ -129,7 +242,13 @@
   };
 
   // Carrega os itens do cardapio para uma determinada categoria..
-  doc.carregarItensCardapio = function (codigoCategoria) {};
+  doc.carregarItensCardapio = function (codigoCategoria) {
+    exibeLoader("#principal");
+    $ajaxUtils.sendGetRequest(
+      itensCardapioUrl + codigoCategoria + ".json",
+      exibirVisaoItensCardapio
+    );
+  };
 
   global.$doc = doc;
 })(window);
